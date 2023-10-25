@@ -17,8 +17,9 @@ public:
     int * calculateMandelbrot();
 
 private:
-    void calculateBatch(int batchX, int batchY, int batchWidth, int batchHeight);
+    inline void calculateBatch(int batchX, int batchY, int batchWidth, int batchHeight);
     int *data;
+    int *batchData;
     float *zRe;
     float *zIm;
     float *addRe;

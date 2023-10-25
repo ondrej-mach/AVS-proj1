@@ -15,7 +15,7 @@ public:
     int *calculateMandelbrot();
 
 private:
-    void calculateLine(int lineNumber);
+    inline void calculateLine(int lineNumber);
     int *data;
     float *lineReal;
     float *lineImag;

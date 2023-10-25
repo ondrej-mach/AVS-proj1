@@ -14,12 +14,14 @@
 #include "LineMandelCalculator.h"
 
 
+constexpr int ALIGN_BYTES = 64;
+
 LineMandelCalculator::LineMandelCalculator (unsigned matrixBaseSize, unsigned limit) :
 	BaseMandelCalculator(matrixBaseSize, limit, "LineMandelCalculator")
 {
-	data = (int *)(malloc(height * width * sizeof(int)));
-	lineReal = (float *)(malloc(width * sizeof(float)));
-	lineImag = (float *)(malloc(width * sizeof(float)));
+	data = (int *)(aligned_alloc(ALIGN_BYTES, height*width*sizeof(int)));
+	lineReal = (float *)(aligned_alloc(ALIGN_BYTES, width*sizeof(float)));
+	lineImag = (float *)(aligned_alloc(ALIGN_BYTES, width*sizeof(float)));
 }
 
 LineMandelCalculator::~LineMandelCalculator() {
@@ -46,7 +48,11 @@ void LineMandelCalculator::calculateLine(int lineNumber)
 		// for all complex number in line
 		bool skip = true;
 
-		#pragma omp simd aligned(lineReal, lineImag), linear(realAdd:dx)
+		int * const data = this->data;
+		float * const lineReal = this->lineReal;
+		float * const lineImag = this->lineImag;
+
+		#pragma omp simd aligned(data, lineReal, lineImag:ALIGN_BYTES)
 		for (int j=0; j<width; j++) {
 			// If point has not diverged yet
 			if (data[lineNumber*width + j] == limit) {
@@ -76,8 +82,14 @@ int * LineMandelCalculator::calculateMandelbrot () {
 	for (int i = 0; i < width*height; i++) {
 		data[i] = limit;
 	}
-	for (int i = 0; i < height; i++) {
+	for (int i = 0; i < (height+1)/2; i++) {
 		calculateLine(i);
+	}
+	// Copy lines to lower half (symmetrically along x axis)
+	for (int i = 0; i < height/2; i++) {
+		for (int j = 0; j < width; j++) {
+			data[width*(height-i-1) + j] = data[width*i + j];
+		}
 	}
 	return data;
 }

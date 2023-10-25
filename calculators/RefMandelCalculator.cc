@@ -55,6 +55,7 @@ int *RefMandelCalculator::calculateMandelbrot()
 			int value = mandelbrot(x, y, limit);
 
 			*(pdata++) = value;
+			// data[i*width+j] = value;
 		}
 	}
 	return data;
