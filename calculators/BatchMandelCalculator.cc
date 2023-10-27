@@ -104,9 +104,8 @@ inline void BatchMandelCalculator::calculateBatch(const int batchX, const int ba
 
 	// copy data from batch buffer to global
 	for (int j=0; j<batchHeight; j++) {
-		//#pragma omp simd
         for (int k=0; k<batchWidth; k++) {
-			data[(batchY+j)*width + (batchX+k)] = batchData[j*batchWidth + k];
+			data[(batchY+j)*width + (batchX+k)] = batchData[j*bw + k];
 		}
 	}
 }
