@@ -16,7 +16,7 @@
 #include "BatchMandelCalculator.h"
 
 
-constexpr int ALIGN_BYTES = 64;
+constexpr int ALIGN_BYTES = 256;
 constexpr int B_PWR = 6;
 constexpr int B_SIZE = 1 << B_PWR;
 constexpr int B_SIZE_SQ = (B_SIZE*B_SIZE);
@@ -75,10 +75,12 @@ inline void BatchMandelCalculator::calculateBatch(const int batchX, const int ba
 		for (int i=0; i<limit; i++) {
 			bool active = false;
 
-			#pragma omp simd reduction(||:active)
+			#pragma omp simd // reduction(||:active) // reduction messes up the result for some unknown reason (but it is faster)
 			for (int bcol=0; bcol<bw; bcol++) {
 				int &result = batchData[bline*bw + bcol];
+
 				if (result == limit) {
+					active = true;
 					float &re = zRe[bline*bw + bcol];
 					float &im = zIm[bline*bw + bcol];
 					float resq = re * re;
@@ -91,7 +93,6 @@ inline void BatchMandelCalculator::calculateBatch(const int batchX, const int ba
 						float addIm = y_start + (batchY + bline) * dy;
 						im = 2.0f * re * im + addIm;
 						re = resq - imsq + addRe;
-						active = true;
 					}
 				}
 			}
