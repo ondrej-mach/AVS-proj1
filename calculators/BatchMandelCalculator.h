@@ -9,6 +9,7 @@
 
 #include <BaseMandelCalculator.h>
 
+
 class BatchMandelCalculator : public BaseMandelCalculator
 {
 public:
@@ -22,8 +23,6 @@ private:
     int *batchData;
     float *zRe;
     float *zIm;
-    float *addRe;
-    float *addIm;
 };
 
 #endif
